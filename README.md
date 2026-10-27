@@ -1,17 +1,17 @@
 # SecureTrack
 
-SecureTrack is a cybersecurity incident reporting and tracking application. Users can report and manage their own incidents; administrators can review all incidents, update investigation status and notes, and delete incidents.
+This application facilitates the creation, reporting and management of cybersecurity incidents. The user can report and manage incidents he/she reports; the administrator can view all incidents, update the investigation status, notes and delete the incidents.
 
 ## Features
 
-- Account registration, login, JWT-protected API routes, and role-based authorization.
-- Incident create, read, update, and delete workflows backed by MongoDB.
-- Owner-only access for ordinary users and administrator access across incidents.
-- A separate administrator page for viewing registered accounts.
-- Dashboard analytics for incident status, severity, and type, scoped to incidents visible to the signed-in user.
-- A separate incidents page with search, severity/status filters, and incident management actions.
-- Dashboard summaries and responsive views.
-- Server-side validation, unique incident references, and safe error responses.
+- User registration, login, JWT-protected API routes, and role-based authorization
+- CRUD operations on incident with support from MongoDB
+- Access to an incident by its owner only and the administrator across all incidents
+- Another page for the administrator where he/she can see the registered accounts.
+- Dashboard metrics about the incident’s status, severity and type with the incidents the user can see
+- Another page for the incidents with filter and search capabilities
+- Dashboard summaries and responsive views
+- Server-side validation, unique incident identifiers and proper error responses.
 
 ## Technology
 
@@ -80,15 +80,15 @@ Incident references combine a timestamp and random value and are protected by a 
 
 ## CRUD workflow
 
-1. Sign in and submit an incident report. The backend validates permitted incident types, severity, and description, then associates the record with the authenticated user.
-2. The dashboard shows analytics based on incidents visible to the signed-in user. Open `Frontend/incidents.html` to search, filter, and manage those incidents. Users receive only their own incidents; administrators receive incidents they manage.
-3. Open an incident and select **Edit Incident**. Users can edit type, description, and severity. Administrators can additionally update status and investigation notes.
-4. The update modifies the existing MongoDB record. Protected identifiers, reporter, and dates are not accepted as editable fields.
-5. Incident owners and administrators can select **Delete** and confirm before removing a record. Ordinary users cannot delete another user's incident.
+1. Log in and file an incident report. Backend validation of allowed incident type, severity, and description takes place and the record gets associated with the logged in user.
+2. Incidents-based analytics are displayed on the dashboard. Access `Frontend/incidents.html` to search and filter incidents. Users get their own incidents, and administrators get incidents they manage.
+3. Open an incident and click **Edit Incident**. Users can change type, description, and severity of the incident. Additionally, administrators have the ability to change incident status and investigation details.
+4. Changes affect the existing document in MongoDB database. Protected identifiers, reporter, and date fields are not allowed for editing.
+5. Owners of incidents and administrators can use **Delete** option to remove a record from the database. Normal users cannot delete incident of another user.
 
 ## Data relationship
 
-One user may report many incidents. `Incident.reportedBy` references `User`; legacy incidents without a reporter remain readable by administrators.
+There can be many incidents reported by one user. `Incident.reportedBy` field references `User`. Legacy incidents without a reporter can be read by administrators.
 
 ```mermaid
 erDiagram
@@ -125,12 +125,4 @@ From `Backend`, run:
 npm test
 ```
 
-The integration test suite requires MongoDB at `127.0.0.1:27017`. It starts a separate API process and uses a uniquely named `securetrack_qa_*` database, which it drops during cleanup. It does not use the configured development database. The tests cover registration and login validation, role and ownership enforcement, incident CRUD, concurrent reference generation, filters, invalid IDs, and admin statistics.
-
-## Submission screenshots
-
-For a concise project report, capture the login/register page, ordinary-user dashboard analytics and report form, the incidents page with its detail/edit modal, and the administrator incidents page showing status/notes and delete confirmation. Use only test/demo records and avoid including credentials or real incident data.
-
-## Security note
-
-For compatibility with the static frontend, JWTs are stored in browser local storage. This is suitable only for a controlled demonstration; a production deployment should evaluate HttpOnly, Secure cookies and complete deployment hardening.
+The integration test suite requires MongoDB at `127.0.0.1:27017`. It starts a separate API process and uses a uniquely named `securetrack_qa_*` database, which it drops during cleanup. It does not use the configured development database. The tests cover registration and login validation, role and ownership enforcement, incident CRUD, concurrent reference generation, filters, invalid IDs, and admin statistics
