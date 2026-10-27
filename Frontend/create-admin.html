@@ -73,7 +73,7 @@
         if (!response.ok) throw new Error(data.message || 'Admin bootstrap failed');
         window.location.href = 'login.html';
       } catch (error) {
-        alert(error.message || 'Unable to create the admin account');
+        showToast(error.message || 'Unable to create the admin account', 'error');
       }
     });
   </script>

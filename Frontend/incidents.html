@@ -238,6 +238,19 @@
     </div>
   </div>
 
+  <div class="confirmation-overlay" id="deleteConfirmation" hidden>
+    <section class="confirmation-dialog" role="alertdialog" aria-modal="true" aria-labelledby="deleteConfirmationTitle" aria-describedby="deleteConfirmationMessage">
+      <div class="confirmation-icon" aria-hidden="true">!</div>
+      <span class="confirmation-kicker">CONFIRM DELETION</span>
+      <h2 id="deleteConfirmationTitle">Delete this incident?</h2>
+      <p id="deleteConfirmationMessage"><strong id="deleteConfirmationIncidentId"></strong> will be permanently deleted.<br />This action cannot be undone.</p>
+      <div class="confirmation-actions">
+        <button class="secondary-btn" id="cancelDeleteButton" type="button">Keep incident</button>
+        <button class="danger-btn" id="confirmDeleteButton" type="button">Delete incident</button>
+      </div>
+    </section>
+  </div>
+
   <div class="toast-container" id="toastContainer"></div>
   <script src="script.js"></script>
 </body>

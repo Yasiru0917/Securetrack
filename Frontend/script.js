@@ -79,10 +79,14 @@ function escapeHtml(value) {
 }
 
 function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
+  let container = document.getElementById('toastContainer');
   if (!container) {
-    window.alert(message);
-    return;
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container';
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'false');
+    document.body.appendChild(container);
   }
 
   const toast = document.createElement('div');
@@ -860,6 +864,7 @@ function beginIncidentStatusEdit() {
 function closeIncidentModal() {
   const modal = document.getElementById('incidentModal');
   if (modal) modal.classList.remove('show');
+  document.getElementById('deleteConfirmation')?.setAttribute('hidden', '');
   editingIncident = false;
 }
 
@@ -938,6 +943,10 @@ async function initializeDashboard() {
   const modalSaveStatusButton = document.getElementById('modalSaveStatusButton');
   const modalChangeStatusButton = document.getElementById('modalChangeStatusButton');
   const modalCancelStatusButton = document.getElementById('modalCancelStatusButton');
+  const deleteConfirmation = document.getElementById('deleteConfirmation');
+  const deleteConfirmationIncidentId = document.getElementById('deleteConfirmationIncidentId');
+  const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+  const confirmDeleteButton = document.getElementById('confirmDeleteButton');
 
   await loadIncidents();
 
@@ -1046,24 +1055,62 @@ async function initializeDashboard() {
   }
 
   if (modalDeleteButton) {
-    modalDeleteButton.addEventListener('click', async () => {
+    modalDeleteButton.addEventListener('click', () => {
       if (!selectedIncident) return;
-      if (!window.confirm(`Delete incident ${selectedIncident.incidentId || ''}? This action cannot be undone.`)) return;
+      deleteConfirmationIncidentId.textContent = selectedIncident.incidentId || 'This incident';
+      deleteConfirmation.hidden = false;
+      cancelDeleteButton.focus();
+    });
+  }
 
+  if (cancelDeleteButton) {
+    cancelDeleteButton.addEventListener('click', () => {
+      deleteConfirmation.hidden = true;
+      modalDeleteButton.focus();
+    });
+  }
+
+  if (deleteConfirmation) {
+    deleteConfirmation.addEventListener('click', (event) => {
+      if (event.target === deleteConfirmation) {
+        deleteConfirmation.hidden = true;
+        modalDeleteButton.focus();
+      }
+    });
+    deleteConfirmation.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !confirmDeleteButton.disabled) {
+        deleteConfirmation.hidden = true;
+        modalDeleteButton.focus();
+      }
+    });
+  }
+
+  if (confirmDeleteButton) {
+    confirmDeleteButton.addEventListener('click', async () => {
+      if (!selectedIncident) return;
       modalDeleteButton.disabled = true;
       modalDeleteButton.textContent = 'Deleting...';
+      confirmDeleteButton.disabled = true;
+      cancelDeleteButton.disabled = true;
+      confirmDeleteButton.textContent = 'Deleting...';
 
       try {
         await apiRequest(`/incidents/${selectedIncident._id}`, { method: 'DELETE' });
         selectedIncident = null;
+        deleteConfirmation.hidden = true;
         closeIncidentModal();
         await loadIncidents();
         showToast('Incident deleted successfully', 'success');
       } catch (error) {
+        deleteConfirmation.hidden = true;
+        modalDeleteButton.focus();
         showToast(error.message || 'Unable to delete incident', 'error');
       } finally {
         modalDeleteButton.disabled = false;
         modalDeleteButton.textContent = 'Delete';
+        confirmDeleteButton.disabled = false;
+        cancelDeleteButton.disabled = false;
+        confirmDeleteButton.textContent = 'Delete incident';
       }
     });
   }
